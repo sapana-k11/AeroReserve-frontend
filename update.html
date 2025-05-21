@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update Flight - Airline Reservation System</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f9;
+    }
+    h1 {
+      text-align: center;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+    .container {
+      width: 70%;
+      margin: 0 auto;
+    }
+    .form-container, .flight-list {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .form-container input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    }
+    .form-container button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .form-container button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Update Flight</h1>
+
+    <!-- Form to update an existing flight -->
+    <div class="form-container">
+      <h2>Update Flight Details</h2>
+      <form id="updateFlightForm">
+        <input type="text" id="airline" placeholder="Airline Name" required>
+        <input type="text" id="departure" placeholder="Departure City" required>
+        <input type="text" id="arrival" placeholder="Arrival City" required>
+        <input type="date" id="date" required>
+        <input type="number" id="seats" placeholder="Number of Seats" required min="1">
+        <button type="submit">Update Flight</button>
+        <div id="formError" class="error"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Get flight ID from the URL query string
+    const urlParams = new URLSearchParams(window.location.search);
+    const flightId = urlParams.get('id');
+
+    // Function to display the flight details in the form
+    function displayFlightDetails() {
+      let flights = JSON.parse(localStorage.getItem('flights')) || [];
+      const flight = flights.find(f => f.id === flightId);
+      
+      if (flight) {
+        document.getElementById('airline').value = flight.airline;
+        document.getElementById('departure').value = flight.departure;
+        document.getElementById('arrival').value = flight.arrival;
+        document.getElementById('date').value = flight.date;
+        document.getElementById('seats').value = flight.seats;
+      } else {
+        document.getElementById('formError').textContent = "Flight not found!";
+      }
+    }
+
+    // Validate and update flight details
+    document.getElementById('updateFlightForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const airline = document.getElementById('airline').value.trim();
+      const departure = document.getElementById('departure').value.trim();
+      const arrival = document.getElementById('arrival').value.trim();
+      const date = document.getElementById('date').value;
+      const seats = document.getElementById('seats').value.trim();
+      const formError = document.getElementById('formError');
+      const alphabeticRegex = /^[A-Za-z\s]+$/; // Regex to allow only alphabetic characters and spaces
+      const numberRegex = /^[0-9]+$/; // Regex to allow only numeric characters
+
+      // Clear previous error message
+      formError.textContent = '';
+
+      // Validation checks
+      if (!airline || !departure || !arrival || !date || !seats) {
+        formError.textContent = "All fields are required.";
+        return;
+      }
+
+      // Ensure airline and departure don't contain numbers
+      if (numberRegex.test(airline)) {
+        formError.textContent = "Airline name cannot contain numbers.";
+        return;
+      }
+
+      if (numberRegex.test(departure)) {
+        formError.textContent = "Departure city cannot contain numbers.";
+        return;
+      }
+
+      // Ensure departure and arrival contain only letters
+      if (!alphabeticRegex.test(departure)) {
+        formError.textContent = "Departure city must contain only letters.";
+        return;
+      }
+
+      if (!alphabeticRegex.test(arrival)) {
+        formError.textContent = "Arrival city must contain only letters.";
+        return;
+      }
+
+      if (parseInt(seats) <= 0) {
+        formError.textContent = "Number of seats must be greater than 0.";
+        return;
+      }
+
+      // Update the flight object in localStorage
+      let flights = JSON.parse(localStorage.getItem('flights')) || [];
+      const flightIndex = flights.findIndex(f => f.id === flightId);
+
+      if (flightIndex !== -1) {
+        flights[flightIndex] = {
+          id: flightId,  // Preserve the same ID to ensure we update the correct flight
+          airline,
+          departure,
+          arrival,
+          date,
+          seats
+        };
+        localStorage.setItem('flights', JSON.stringify(flights));
+
+        // Redirect to the main page or show success message
+        alert("Flight updated successfully!");
+        window.location.href = "index.html"; // Redirect to the main page after update
+      } else {
+        formError.textContent = "Flight not found!";
+      }
+    });
+
+    // Display flight details when the page loads
+    displayFlightDetails();
+  </script>
+</body>
+</html>
+
+
+

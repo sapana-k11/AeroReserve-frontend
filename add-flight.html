@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Flight</title>
+  <link rel="stylesheet" href="css/style.css"> <!-- Optional -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Add Flight</h1>
+
+  <form id="flightForm">
+    <!-- New input for Flight Number -->
+    <input type="text" id="flightNumber" placeholder="Flight Number (e.g., AA1234)" required>
+
+    <input type="text" id="airline" placeholder="Airline Name" required>
+    <input type="text" id="departure" placeholder="Departure" required>
+    <input type="text" id="arrival" placeholder="Arrival" required>
+    <input type="date" id="date" required>
+    <input type="number" id="seats" placeholder="Number of Seats" required min="1">
+
+    <div>
+      <button type="submit">Submit</button>
+      <button type="button" onclick="window.location.href='index.html'">Cancel</button>
+    </div>
+  </form>
+
+  <script>
+    document.getElementById('flightForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+  
+      const flightNumber = document.getElementById('flightNumber');
+      const airline = document.getElementById('airline');
+      const departure = document.getElementById('departure');
+      const arrival = document.getElementById('arrival');
+      const date = document.getElementById('date');
+      const seats = document.getElementById('seats');
+  
+      const nameRegex = /^[a-zA-Z\s]+$/; // Only letters and spaces
+      const flightNumberRegex = /^[A-Z]{2}\d{4,5}$/; // Flight number format (e.g., AA1234)
+  
+      // Basic empty check
+      if (!flightNumber.value.trim() || !airline.value.trim() || !departure.value.trim() || !arrival.value.trim()) {
+        alert("Please fill out all fields.");
+        return;
+      }
+  
+      // Validate that flight number follows the correct pattern
+      if (!flightNumberRegex.test(flightNumber.value)) {
+        alert("Flight number must be in the format (e.g., AA1234).");
+        flightNumber.focus();
+        return;
+      }
+
+      // Validate that text fields only contain letters
+      if (!nameRegex.test(airline.value)) {
+        alert("Airline name must contain only letters.");
+        airline.focus();
+        return;
+      }
+  
+      if (!nameRegex.test(departure.value)) {
+        alert("Departure location must contain only letters.");
+        departure.focus();
+        return;
+      }
+  
+      if (!nameRegex.test(arrival.value)) {
+        alert("Arrival location must contain only letters.");
+        arrival.focus();
+        return;
+      }
+  
+      // Validate seats is a positive number
+      const seatNumber = parseInt(seats.value);
+      if (isNaN(seatNumber) || seatNumber <= 0) {
+        alert("Number of seats must be a valid positive number.");
+        seats.focus();
+        return;
+      }
+  
+      // Date check
+      const today = new Date().toISOString().split('T')[0];
+      if (date.value < today) {
+        alert("Date cannot be in the past.");
+        date.focus();
+        return;
+      }
+  
+      // If all is valid
+      const flights = JSON.parse(localStorage.getItem('flights')) || [];
+      const id = Date.now().toString();
+      const flight = {
+        id,
+        flightNumber: flightNumber.value, // Store the flight number
+        airline: airline.value,
+        departure: departure.value,
+        arrival: arrival.value,
+        date: date.value,
+        seats: seats.value
+      };
+  
+      flights.push(flight);
+      localStorage.setItem('flights', JSON.stringify(flights));
+      alert("Flight added successfully!");
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>

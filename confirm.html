@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Confirm Booking</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #eef2f7;
+      padding: 20px;
+    }
+    form {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .summary {
+      background: #f9f9f9;
+      padding: 10px;
+      margin-bottom: 20px;
+      border-left: 5px solid #0077cc;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .dynamic-section {
+      display: none;
+      margin-top: 10px;
+    }
+    .error {
+      color: red;
+      font-size: 0.9em;
+    }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 10px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #1e7e34;
+    }
+  </style>
+</head>
+<body>
+
+<form id="confirmForm">
+  <h2>Confirm Your Booking</h2>
+
+  <div class="summary" id="bookingSummary">
+    <!-- Booking details will be populated dynamically -->
+    <strong>Booking Summary:</strong>
+    <p>Loading booking details...</p>
+  </div>
+
+  <label for="seatNumber">Seat Selection</label>
+  <select id="seatNumber" name="seatNumber" required>
+    <option value="">-- Select Seat --</option>
+    <option value="12A">12A</option>
+    <option value="12B">12B</option>
+    <option value="14C">14C</option>
+    <option value="15D">15D</option>
+  </select>
+
+  <label for="baggage">Extra Baggage</label>
+  <select id="baggage" name="baggage">
+    <option value="none">None</option>
+    <option value="10kg">+10kg</option>
+    <option value="20kg">+20kg</option>
+  </select>
+
+  <label for="assistance">Need Special Assistance?</label>
+  <select id="assistance" name="assistance" onchange="toggleAssistanceOptions()">
+    <option value="no">No</option>
+    <option value="yes">Yes</option>
+  </select>
+
+  <div id="assistanceDetails" class="dynamic-section">
+    <label for="assistanceType">Type of Assistance</label>
+    <select id="assistanceType" name="assistanceType">
+      <option value="">-- Select --</option>
+      <option value="wheelchair">Wheelchair</option>
+      <option value="visual">Visual Aid</option>
+      <option value="hearing">Hearing Assistance</option>
+    </select>
+  </div>
+
+  <p class="error" id="errorMsg"></p>
+  <button type="submit">Confirm Booking</button>
+</form>
+
+<script>
+  // Dummy data injection for display purposes
+  const bookingData = JSON.parse(localStorage.getItem("bookingData")) || {
+    fullName: "Sapana Karki",
+    email: "Sapana@example.com",
+    departure: "Kathmandu",
+    destination: "Pokhara",
+    travelDate: "11 july 2025",
+    flightClass: "Business",
+    meal: "Vegetarian"
+  };
+
+  const summary = document.getElementById("bookingSummary");
+  summary.innerHTML = `
+    <strong>Booking Summary:</strong>
+    <p><b>Name:</b> ${bookingData.fullName}</p>
+    <p><b>Email:</b> ${bookingData.email}</p>
+    <p><b>From:</b> ${bookingData.departure} → <b>To:</b> ${bookingData.destination}</p>
+    <p><b>Class:</b> ${bookingData.flightClass}</p>
+    <p><b>Meal:</b> ${bookingData.meal || 'None selected'}</p>
+    <p><b>Date:</b> ${bookingData.travelDate}</p>
+  `;
+
+  function toggleAssistanceOptions() {
+    const value = document.getElementById("assistance").value;
+    document.getElementById("assistanceDetails").style.display = (value === "yes") ? "block" : "none";
+  }
+
+  document.getElementById("confirmForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const seat = document.getElementById("seatNumber").value;
+    const assistance = document.getElementById("assistance").value;
+    const assistanceType = document.getElementById("assistanceType").value;
+    const errorMsg = document.getElementById("errorMsg");
+
+    if (!seat) {
+      errorMsg.textContent = "Please select a seat.";
+      return;
+    }
+
+    if (assistance === "yes" && !assistanceType) {
+      errorMsg.textContent = "Please specify the type of assistance needed.";
+      return;
+    }
+
+    errorMsg.textContent = "";
+    alert("Booking confirmed! Thank you for flying with us.");
+    // You can now send this data to your backend system here
+  });
+</script>
+
+</body>
+</html>

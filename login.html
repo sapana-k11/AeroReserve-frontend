@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - Airline Reservation System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #eaf2f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .login-container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1em;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
+    .error {
+      color: red;
+      font-size: 0.9em;
+      margin-top: 5px;
+    }
+
+    .toggle-password {
+      margin-top: 10px;
+      cursor: pointer;
+      font-size: 0.9em;
+      color: #007bff;
+      user-select: none;
+    }
+
+    button {
+      margin-top: 25px;
+      width: 100%;
+      padding: 10px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-container">
+  <h2>Login</h2>
+  <form id="loginForm" novalidate>
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" placeholder="Enter your email" required />
+
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" placeholder="Enter your password" required />
+    <div class="toggle-password" onclick="togglePassword()">Show Password</div>
+
+    <p class="error" id="errorMsg"></p>
+    <button type="submit">Login</button>
+  </form>
+</div>
+
+<script>
+  function togglePassword() {
+    const pwd = document.getElementById("password");
+    const toggle = document.querySelector(".toggle-password");
+    if (pwd.type === "password") {
+      pwd.type = "text";
+      toggle.textContent = "Hide Password";
+    } else {
+      pwd.type = "password";
+      toggle.textContent = "Show Password";
+    }
+  }
+
+  document.getElementById("loginForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const errorMsg = document.getElementById("errorMsg");
+
+    // Reset styles
+    document.getElementById("email").style.borderColor = "#ccc";
+    document.getElementById("password").style.borderColor = "#ccc";
+    errorMsg.textContent = "";
+
+    if (!email.includes("@") || !email.includes(".")) {
+      errorMsg.textContent = "Please enter a valid email address.";
+      document.getElementById("email").style.borderColor = "red";
+      return;
+    }
+
+    if (password.length < 6) {
+      errorMsg.textContent = "Password must be at least 6 characters.";
+      document.getElementById("password").style.borderColor = "red";
+      return;
+    }
+
+    // If passed all validations
+    errorMsg.textContent = "";
+    alert("Login successful!");
+    // Redirect or authenticate with backend
+    // window.location.href = "dashboard.html";
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Search Flights - Airline Reservation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f9fd;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    form {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      max-width: 500px;
+      width: 100%;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .swap-btn {
+      width: auto;
+      margin: 10px 0;
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .error {
+      color: red;
+      margin-top: 5px;
+      font-size: 0.9em;
+    }
+
+    input:invalid {
+      border-color: red;
+    }
+
+    input:valid {
+      border-color: #28a745;
+    }
+  </style>
+</head>
+<body>
+
+<form id="searchForm" novalidate>
+  <h2>Search Flights</h2>
+
+  <label for="departure">Departure City</label>
+  <input type="text" id="departure" name="departure" placeholder="e.g., New York" required />
+
+  <button type="button" class="swap-btn" onclick="swapCities()">⇆ Swap Cities</button>
+
+  <label for="destination">Destination City</label>
+  <input type="text" id="destination" name="destination" placeholder="e.g., London" required />
+
+  <label for="travelDate">Travel Date</label>
+  <input type="date" id="travelDate" name="travelDate" required />
+
+  <p class="error" id="errorMsg"></p>
+  <button type="submit">Search Flights</button>
+</form>
+
+<script>
+  // Set min date to today
+  document.addEventListener("DOMContentLoaded", () => {
+    const today = new Date().toISOString().split("T")[0];
+    document.getElementById("travelDate").setAttribute("min", today);
+  });
+
+  function swapCities() {
+    const dep = document.getElementById("departure");
+    const dest = document.getElementById("destination");
+    [dep.value, dest.value] = [dest.value, dep.value];
+  }
+
+  document.getElementById("searchForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const depEl = document.getElementById("departure");
+    const destEl = document.getElementById("destination");
+    const dateEl = document.getElementById("travelDate");
+    const errorMsg = document.getElementById("errorMsg");
+
+    const departure = depEl.value.trim();
+    const destination = destEl.value.trim();
+    const travelDate = dateEl.value;
+
+    const cityRegex = /^[a-zA-Z\s]+$/;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDate = new Date(travelDate);
+
+    errorMsg.textContent = "";
+    depEl.setCustomValidity("");
+    destEl.setCustomValidity("");
+    dateEl.setCustomValidity("");
+
+    // Empty check
+    if (!departure || !destination || !travelDate) {
+      errorMsg.textContent = "All fields are required.";
+      return;
+    }
+
+    // Invalid characters in cities
+    if (!cityRegex.test(departure)) {
+      errorMsg.textContent = "Departure city must contain only letters and spaces.";
+      depEl.setCustomValidity("Only letters and spaces allowed.");
+      depEl.reportValidity();
+      return;
+    }
+
+    if (!cityRegex.test(destination)) {
+      errorMsg.textContent = "Destination city must contain only letters and spaces.";
+      destEl.setCustomValidity("Only letters and spaces allowed.");
+      destEl.reportValidity();
+      return;
+    }
+
+    // Same city check
+    if (departure.toLowerCase() === destination.toLowerCase()) {
+      errorMsg.textContent = "Departure and destination cities must be different.";
+      destEl.setCustomValidity("Destination must differ from departure.");
+      destEl.reportValidity();
+      return;
+    }
+
+    // Past date check
+    if (selectedDate < today) {
+      errorMsg.textContent = "Travel date cannot be in the past.";
+      dateEl.setCustomValidity("Choose a valid date.");
+      dateEl.reportValidity();
+      return;
+    }
+
+    // Passed all validations
+    alert(`Searching flights from ${departure} to ${destination} on ${travelDate}`);
+    // Redirect or fetch flights
+    // window.location.href = `results.html?from=${departure}&to=${destination}&date=${travelDate}`;
+  });
+</script>
+
+</body>
+</html>
+
+

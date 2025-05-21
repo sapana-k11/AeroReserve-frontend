@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Airline Reservation System</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f9;
+    }
+    h1 {
+      text-align: center;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+    .container {
+      width: 70%;
+      margin: 0 auto;
+    }
+    .form-container, .flight-list {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .form-container input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    }
+    .form-container button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .form-container button:hover {
+      background-color: #45a049;
+    }
+    .flight-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    .flight-item div {
+      display: flex;
+      gap: 10px;
+    }
+    .flight-item button {
+      background-color: #f44336;
+      color: white;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .flight-item button:hover {
+      background-color: #e53935;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Airline Reservation System</h1>
+
+    <!-- Form to add a new flight -->
+    <div class="form-container">
+      <h2>Add Flight</h2>
+      <form id="flightForm">
+        <input type="text" id="airline" placeholder="Airline Name" required>
+        <input type="text" id="departure" placeholder="Departure City" required>
+        <input type="text" id="arrival" placeholder="Arrival City" required>
+        <input type="date" id="date" required>
+        <input type="number" id="seats" placeholder="Number of Seats" required min="1">
+        <button type="submit">Add Flight</button>
+        <div id="formError" class="error"></div>
+      </form>
+    </div>
+
+    <!-- List of Flights -->
+    <div class="flight-list">
+      <h2>Available Flights</h2>
+      <ul id="flightList"></ul>
+    </div>
+  </div>
+
+  <script>
+    // Get the flight list from localStorage and display it
+    function displayFlights() {
+      const flights = JSON.parse(localStorage.getItem('flights')) || [];
+      const flightList = document.getElementById('flightList');
+      flightList.innerHTML = ''; // Clear the list first
+
+      flights.forEach(flight => {
+        const li = document.createElement('li');
+        li.classList.add('flight-item');
+        li.innerHTML = `
+          <span>Airline: ${flight.airline} | Departure: ${flight.departure} | Arrival: ${flight.arrival} | Seats: ${flight.seats}</span>
+          <div>
+            <button onclick="editFlight('${flight.id}')">Edit</button>
+            <button onclick="deleteFlight('${flight.id}')">Delete</button>
+          </div>
+        `;
+        flightList.appendChild(li);
+      });
+    }
+
+    // Add a new flight to localStorage
+    document.getElementById('flightForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const airline = document.getElementById('airline').value.trim();
+      const departure = document.getElementById('departure').value.trim();
+      const arrival = document.getElementById('arrival').value.trim();
+      const date = document.getElementById('date').value;
+      const seats = document.getElementById('seats').value.trim();
+      const formError = document.getElementById('formError');
+      const alphabeticRegex = /^[A-Za-z\s]+$/; // Regex to allow only alphabetic characters and spaces
+      const numberRegex = /^[0-9]+$/; // Regex to allow only numeric characters
+
+      // Clear previous error message
+      formError.textContent = '';
+
+      // Validation checks
+      if (!airline || !departure || !arrival || !date || !seats) {
+        formError.textContent = "All fields are required.";
+        return;
+      }
+
+      // Ensure airline and departure don't contain numbers
+      if (numberRegex.test(airline)) {
+        formError.textContent = "Airline name cannot contain numbers.";
+        return;
+      }
+
+      if (numberRegex.test(departure)) {
+        formError.textContent = "Departure city cannot contain numbers.";
+        return;
+      }
+
+      // Ensure departure and arrival contain only letters
+      if (!alphabeticRegex.test(departure)) {
+        formError.textContent = "Departure city must contain only letters.";
+        return;
+      }
+
+      if (!alphabeticRegex.test(arrival)) {
+        formError.textContent = "Arrival city must contain only letters.";
+        return;
+      }
+
+      if (parseInt(seats) <= 0) {
+        formError.textContent = "Number of seats must be greater than 0.";
+        return;
+      }
+
+      // Create a new flight object
+      const id = Date.now().toString(); // Using timestamp as unique ID
+      const flight = {
+        id,
+        airline,
+        departure,
+        arrival,
+        date,
+        seats
+      };
+
+      // Save the new flight to localStorage
+      let flights = JSON.parse(localStorage.getItem('flights')) || [];
+      flights.push(flight);
+      localStorage.setItem('flights', JSON.stringify(flights));
+
+      // Display the updated flight list
+      displayFlights();
+
+      // Reset the form
+      document.getElementById('flightForm').reset();
+    });
+
+    // Delete a flight
+    function deleteFlight(flightId) {
+      let flights = JSON.parse(localStorage.getItem('flights')) || [];
+      flights = flights.filter(flight => flight.id !== flightId); // Remove the flight with matching ID
+      localStorage.setItem('flights', JSON.stringify(flights)); // Update localStorage
+      displayFlights(); // Re-display the updated list
+    }
+
+    // Edit a flight
+    function editFlight(flightId) {
+      window.location.href = `update.html?id=${flightId}`; // Redirect to update page with flight ID
+    }
+
+    // Display flights when the page loads
+    displayFlights();
+  </script>
+</body>
+</html>
+
+
+
+

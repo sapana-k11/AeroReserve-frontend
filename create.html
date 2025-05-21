@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Airline Reservation - CRUD</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      width: 80%;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+    }
+    form, .flight-list {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .error {
+      color: red;
+      font-size: 14px;
+    }
+    .flight-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+    }
+    .flight-item span {
+      flex-grow: 1;
+    }
+    .flight-item button {
+      margin-left: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Airline Reservation System (CRUD)</h1>
+
+    <form id="flightForm">
+      <input type="hidden" id="flightId">
+      <input type="text" id="airline" placeholder="Airline Name" required />
+      <input type="text" id="departure" placeholder="Departure City" required />
+      <input type="text" id="arrival" placeholder="Arrival City" required />
+      <input type="date" id="date" required />
+      <input type="number" id="seats" placeholder="Number of Seats" required min="1" />
+      <div class="error" id="formError"></div>
+      <button type="submit">Save Flight</button>
+    </form>
+
+    <div class="flight-list">
+      <h2>Flights</h2>
+      <ul id="flightList"></ul>
+    </div>
+  </div>
+
+  <script>
+    function displayFlights() {
+      const flights = JSON.parse(localStorage.getItem('flights')) || [];
+      const list = document.getElementById('flightList');
+      list.innerHTML = '';
+
+      flights.forEach(flight => {
+        const li = document.createElement('li');
+        li.className = 'flight-item';
+        li.innerHTML = `
+          <span>✈️ ${flight.airline} | ${flight.departure} → ${flight.arrival} | ${flight.date} | Seats: ${flight.seats}</span>
+          <button onclick="editFlight('${flight.id}')">Edit</button>
+          <button onclick="deleteFlight('${flight.id}')">Delete</button>
+        `;
+        list.appendChild(li);
+      });
+    }
+
+    function resetForm() {
+      document.getElementById('flightForm').reset();
+      document.getElementById('flightId').value = '';
+      document.getElementById('formError').textContent = '';
+    }
+
+    function validateForm(flight) {
+      const alphaRegex = /^[A-Za-z\s]+$/;
+      const errorEl = document.getElementById('formError');
+
+      if (!alphaRegex.test(flight.airline)) {
+        errorEl.textContent = 'Airline name must contain only letters and spaces.';
+        return false;
+      }
+      if (!alphaRegex.test(flight.departure)) {
+        errorEl.textContent = 'Departure must contain only letters and spaces.';
+        return false;
+      }
+      if (!alphaRegex.test(flight.arrival)) {
+        errorEl.textContent = 'Arrival must contain only letters and spaces.';
+        return false;
+      }
+      if (parseInt(flight.seats) < 1) {
+        errorEl.textContent = 'Number of seats must be at least 1.';
+        return false;
+      }
+      errorEl.textContent = '';
+      return true;
+    }
+
+    document.getElementById('flightForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const id = document.getElementById('flightId').value || Date.now().toString();
+      const airline = document.getElementById('airline').value.trim();
+      const departure = document.getElementById('departure').value.trim();
+      const arrival = document.getElementById('arrival').value.trim();
+      const date = document.getElementById('date').value;
+      const seats = document.getElementById('seats').value.trim();
+
+      const newFlight = { id, airline, departure, arrival, date, seats };
+
+      if (!validateForm(newFlight)) return;
+
+      let flights = JSON.parse(localStorage.getItem('flights')) || [];
+
+      const existingIndex = flights.findIndex(f => f.id === id);
+      if (existingIndex !== -1) {
+        flights[existingIndex] = newFlight; // Update
+      } else {
+        flights.push(newFlight); // Create
+      }
+
+      localStorage.setItem('flights', JSON.stringify(flights));
+      displayFlights();
+      resetForm();
+    });
+
+    function editFlight(id) {
+      const flights = JSON.parse(localStorage.getItem('flights')) || [];
+      const flight = flights.find(f => f.id === id);
+      if (!flight) return;
+
+      document.getElementById('flightId').value = flight.id;
+      document.getElementById('airline').value = flight.airline;
+      document.getElementById('departure').value = flight.departure;
+      document.getElementById('arrival').value = flight.arrival;
+      document.getElementById('date').value = flight.date;
+      document.getElementById('seats').value = flight.seats;
+    }
+
+    function deleteFlight(id) {
+      let flights = JSON.parse(localStorage.getItem('flights')) || [];
+      flights = flights.filter(f => f.id !== id);
+      localStorage.setItem('flights', JSON.stringify(flights));
+      displayFlights();
+    }
+
+    // Init
+    displayFlights();
+  </script>
+</body>
+</html>
+
